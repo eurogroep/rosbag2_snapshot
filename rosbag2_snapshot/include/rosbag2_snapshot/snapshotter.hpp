@@ -35,6 +35,7 @@
 #include <rosbag2_snapshot_msgs/srv/trigger_snapshot.hpp>
 #include <std_srvs/srv/set_bool.hpp>
 #include <rosbag2_cpp/writer.hpp>
+#include <rosbag2_snapshot/generic_subscription.hpp>
 
 #include <chrono>
 #include <deque>
@@ -43,6 +44,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <boost/thread.hpp>
 
 namespace rosbag2_snapshot
 {
@@ -167,7 +169,7 @@ private:
   // Logger for outputting ROS logging messages
   rclcpp::Logger logger_;
   // Locks access to size_ and queue_
-  std::mutex lock;
+  boost::mutex lock;
   // Stores limits on buffer size and duration
   SnapshotterTopicOptions options_;
   // Current total size of the queue, in bytes
@@ -175,7 +177,7 @@ private:
   typedef std::deque<SnapshotMessage> queue_t;
   queue_t queue_;
   // Subscriber to the callback which uses this queue
-  std::shared_ptr<rclcpp::GenericSubscription> sub_;
+  std::shared_ptr<GenericSubscription> sub_;
 
 public:
   explicit MessageQueue(const SnapshotterTopicOptions & options, const rclcpp::Logger & logger);
@@ -189,7 +191,7 @@ public:
   // Clear internal buffer
   void clear();
   // Store the subscriber for this topic's queue internaly so it is not deleted
-  void setSubscriber(std::shared_ptr<rclcpp::GenericSubscription> sub);
+  void setSubscriber(std::shared_ptr<GenericSubscription> sub);
   typedef std::pair<queue_t::const_iterator, queue_t::const_iterator> range_t;
   // Get a begin and end iterator into the buffer respecting the start and
   // end timestamp constraints
@@ -228,7 +230,7 @@ private:
   typedef std::map<TopicDetails, std::shared_ptr<MessageQueue>> buffers_t;
   buffers_t buffers_;
   // Locks recording_ and writing_ states.
-  std::shared_mutex state_lock_;
+  boost::shared_mutex state_lock_;
   // True if new messages are being written to the internal buffer
   bool recording_;
   // True if currently writing buffers to a bag file
