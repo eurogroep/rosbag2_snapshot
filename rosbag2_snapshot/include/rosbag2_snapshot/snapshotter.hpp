@@ -29,13 +29,6 @@
 #ifndef ROSBAG2_SNAPSHOT__SNAPSHOTTER_HPP_
 #define ROSBAG2_SNAPSHOT__SNAPSHOTTER_HPP_
 
-#include <rclcpp/rclcpp.hpp>
-#include <rclcpp/time.hpp>
-#include <rosbag2_snapshot_msgs/msg/topic_details.hpp>
-#include <rosbag2_snapshot_msgs/srv/trigger_snapshot.hpp>
-#include <std_srvs/srv/set_bool.hpp>
-#include <rosbag2_cpp/writer.hpp>
-
 #include <chrono>
 #include <deque>
 #include <map>
@@ -43,6 +36,13 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/time.hpp>
+#include <rosbag2_cpp/writer.hpp>
+#include <rosbag2_snapshot_msgs/msg/topic_details.hpp>
+#include <rosbag2_snapshot_msgs/srv/trigger_snapshot.hpp>
+#include <std_srvs/srv/set_bool.hpp>
 
 namespace rosbag2_snapshot
 {
@@ -174,7 +174,7 @@ private:
   int64_t size_;
   typedef std::deque<SnapshotMessage> queue_t;
   queue_t queue_;
-  
+
   // Subscriber to the callback which uses this queue
   std::shared_ptr<rclcpp::GenericSubscription> sub_;
 

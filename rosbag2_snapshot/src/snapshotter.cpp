@@ -26,12 +26,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <rclcpp/scope_exit.hpp>
-#include <rclcpp/rclcpp.hpp>
 #include <rosbag2_snapshot/snapshotter.hpp>
 
 #include <filesystem>
-
 #include <cassert>
 #include <chrono>
 #include <ctime>
@@ -43,6 +40,10 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <rclcpp/rclcpp.hpp>
+#include <rcpputils/scope_exit.hpp>
+
 
 namespace rosbag2_snapshot
 {
@@ -341,7 +342,7 @@ void Snapshotter::parseOptionsFromParams()
 
       try {
         opts.duration_limit_ = rclcpp::Duration::from_seconds(
-          declare_parameter<double>(prefix + ".duration")
+          declare_parameter<double>(prefix + ".duration", options_.default_duration_limit_.seconds())
         );
       } catch (const rclcpp::ParameterTypeException & ex) {
         if (std::string{ex.what()}.find("not set") == std::string::npos) {
@@ -352,7 +353,7 @@ void Snapshotter::parseOptionsFromParams()
       }
 
       try {
-        opts.memory_limit_ = declare_parameter<double>(prefix + ".memory");
+        opts.memory_limit_ = declare_parameter<double>(prefix + ".memory", options_.default_memory_limit_);
       } catch (const rclcpp::ParameterTypeException & ex) {
         if (std::string{ex.what()}.find("not set") == std::string::npos) {
           RCLCPP_ERROR(
@@ -484,13 +485,10 @@ bool Snapshotter::writeTopic(
   return true;
 }
 
-
 void Snapshotter::waitForRosTime()
 {
-   while (rclcpp::ok())
-  {
-    if (!get_clock()->started())
-    {
+  while (rclcpp::ok()) {
+    if (!get_clock()->started()) {
       return;
     }
     rclcpp::sleep_for(std::chrono::milliseconds(100));
@@ -532,7 +530,7 @@ void Snapshotter::triggerSnapshotCb(
   }
 
   // Ensure that state is updated when function exits, regardlesss of branch path / exception events
-  RCLCPP_SCOPE_EXIT(
+  RCPPUTILS_SCOPE_EXIT(
     // Clear buffers beacuase time gaps (skipped messages) may have occured while paused
     std::unique_lock<std::shared_mutex> write_lock(state_lock_);
     // Turn off writing flag and return recording to its state before writing

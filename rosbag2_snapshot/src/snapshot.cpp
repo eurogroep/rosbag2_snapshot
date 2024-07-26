@@ -26,11 +26,11 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <rosbag2_snapshot/snapshotter.hpp>
-
 #include <string>
 #include <sstream>
 #include <vector>
+
+#include <rosbag2_snapshot/snapshotter.hpp>
 
 using rosbag2_snapshot::Snapshotter;
 using rosbag2_snapshot::SnapshotterClient;
