@@ -244,7 +244,7 @@ Snapshotter::Snapshotter(const rclcpp::NodeOptions & options)
   writing_(false)
 {
   parseOptionsFromParams();
-
+  waitForRosTime();
   // Create the queue for each topic and set up the subscriber to add to it on new messages
   for (auto & pair : options_.topics_) {
     string topic{pair.first.name}, type{pair.first.type};
@@ -482,6 +482,19 @@ bool Snapshotter::writeTopic(
   }
 
   return true;
+}
+
+
+void Snapshotter::waitForRosTime()
+{
+   while (rclcpp::ok())
+  {
+    if (!get_clock()->started())
+    {
+      return;
+    }
+    rclcpp::sleep_for(std::chrono::milliseconds(100));
+  }
 }
 
 void Snapshotter::triggerSnapshotCb(

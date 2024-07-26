@@ -174,6 +174,7 @@ private:
   int64_t size_;
   typedef std::deque<SnapshotMessage> queue_t;
   queue_t queue_;
+  
   // Subscriber to the callback which uses this queue
   std::shared_ptr<rclcpp::GenericSubscription> sub_;
 
@@ -286,6 +287,8 @@ private:
     const TopicDetails & topic_details,
     const rosbag2_snapshot_msgs::srv::TriggerSnapshot::Request::SharedPtr & req,
     const rosbag2_snapshot_msgs::srv::TriggerSnapshot::Response::SharedPtr & res);
+  // Wait for ROS clock to start
+  void waitForRosTime();
 };
 
 // Configuration for SnapshotterClient
