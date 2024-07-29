@@ -287,8 +287,6 @@ private:
     const TopicDetails & topic_details,
     const rosbag2_snapshot_msgs::srv::TriggerSnapshot::Request::SharedPtr & req,
     const rosbag2_snapshot_msgs::srv::TriggerSnapshot::Response::SharedPtr & res);
-  // Wait for ROS clock to start
-  void waitForRosTime();
 };
 
 // Configuration for SnapshotterClient
