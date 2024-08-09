@@ -2,8 +2,8 @@
 Changelog for package rosbag2_snapshot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2024-08-09)
+------------------
 * Add qos settings as parameters
 * Fix parameter defaults and linting
 * Add conversion from MB to B for memory limit. (`#8 <https://github.com/eurogroep/rosbag2_snapshot/issues/8>`_)
