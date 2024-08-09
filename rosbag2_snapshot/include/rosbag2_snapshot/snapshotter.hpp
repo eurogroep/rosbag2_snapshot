@@ -42,6 +42,7 @@
 #include <rosbag2_cpp/writer.hpp>
 #include <rosbag2_snapshot_msgs/msg/topic_details.hpp>
 #include <rosbag2_snapshot_msgs/srv/trigger_snapshot.hpp>
+#include <rosbag2_transport/qos.hpp>
 #include <std_srvs/srv/set_bool.hpp>
 
 namespace rosbag2_snapshot
@@ -53,11 +54,16 @@ struct TopicDetails
 {
   std::string name;
   std::string type;
+  rclcpp::QoS qos;
 
-  TopicDetails() {}
+  TopicDetails()
+  : qos(10) {}
 
   TopicDetails(std::string name, std::string type)
-  : name(name), type(type) {}
+  : name(name), type(type), qos(10) {}
+
+  TopicDetails(std::string name, std::string type, rclcpp::QoS qos)
+  : name(name), type(type), qos(qos) {}
 
   bool operator==(const TopicDetails & t) const
   {
@@ -80,6 +86,66 @@ struct TopicDetails
     msg.name = name;
     msg.type = type;
     return msg;
+  }
+
+  std::string qosSettingsAsString() const
+  {
+    YAML::Node qos_profiles_yaml;
+    auto rosbag2_qos = rosbag2_transport::Rosbag2QoS(qos);
+    qos_profiles_yaml.push_back(YAML::convert<rosbag2_transport::Rosbag2QoS>::encode(rosbag2_qos));
+    return YAML::Dump(qos_profiles_yaml);
+  }
+
+  void qosSettingsFromString(
+    const std::string & qos_history,
+    const std::string & qos_reliability,
+    const std::string & qos_durability)
+  {
+    if (!qos_history.empty()) {
+      qos.history(getHistoryPolicyFromString(qos_history));
+    }
+    if (!qos_reliability.empty()) {
+      qos.reliability(getReliabilityPolicyFromString(qos_reliability));
+    }
+    if (!qos_durability.empty()) {
+      qos.durability(getDurabilityPolicyFromString(qos_durability));
+    }
+  }
+
+  rclcpp::HistoryPolicy getHistoryPolicyFromString(const std::string & qos_history)
+  {
+    if (qos_history == "KeepLast") {
+      return rclcpp::HistoryPolicy::KeepLast;
+    } else if (qos_history == "KeepAll") {
+      return rclcpp::HistoryPolicy::KeepAll;
+    } else if (qos_history == "SystemDefault") {
+      return rclcpp::HistoryPolicy::SystemDefault;
+    }
+    return rclcpp::HistoryPolicy::Unknown;
+  }
+
+  rclcpp::ReliabilityPolicy getReliabilityPolicyFromString(const std::string & qos_reliability)
+  {
+    if (qos_reliability == "BestEffort") {
+      return rclcpp::ReliabilityPolicy::BestEffort;
+    } else if (qos_reliability == "Reliable") {
+      return rclcpp::ReliabilityPolicy::Reliable;
+    } else if (qos_reliability == "SystemDefault") {
+      return rclcpp::ReliabilityPolicy::SystemDefault;
+    }
+    return rclcpp::ReliabilityPolicy::Unknown;
+  }
+
+  rclcpp::DurabilityPolicy getDurabilityPolicyFromString(const std::string & qos_durability)
+  {
+    if (qos_durability == "Volatile") {
+      return rclcpp::DurabilityPolicy::Volatile;
+    } else if (qos_durability == "TransientLocal") {
+      return rclcpp::DurabilityPolicy::TransientLocal;
+    } else if (qos_durability == "SystemDefault") {
+      return rclcpp::DurabilityPolicy::SystemDefault;
+    }
+    return rclcpp::DurabilityPolicy::Unknown;
   }
 };
 
