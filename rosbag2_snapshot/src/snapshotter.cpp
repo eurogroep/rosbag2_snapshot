@@ -341,7 +341,9 @@ void Snapshotter::parseOptionsFromParams()
 
       try {
         opts.duration_limit_ = rclcpp::Duration::from_seconds(
-          declare_parameter<double>(prefix + ".duration", options_.default_duration_limit_.seconds())
+          declare_parameter<double>(
+            prefix + ".duration",
+            options_.default_duration_limit_.seconds())
         );
       } catch (const rclcpp::ParameterTypeException & ex) {
         if (std::string{ex.what()}.find("not set") == std::string::npos) {
@@ -352,7 +354,9 @@ void Snapshotter::parseOptionsFromParams()
       }
 
       try {
-        opts.memory_limit_ = declare_parameter<double>(prefix + ".memory", options_.default_memory_limit_);
+        opts.memory_limit_ = declare_parameter<double>(
+          prefix + ".memory",
+          options_.default_memory_limit_);
       } catch (const rclcpp::ParameterTypeException & ex) {
         if (std::string{ex.what()}.find("not set") == std::string::npos) {
           RCLCPP_ERROR(
